@@ -1,7 +1,4 @@
 {
-  "functions": {
-    "api/ssr.ts": {}
-  },
   "rewrites": [
     {
       "source": "/(.*)",
