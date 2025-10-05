@@ -1,6 +1,7 @@
 {
-  "buildCommand": "npm run build -- --configuration=production",
+  "buildCommand": "nx build member-client --configuration=production",
   "outputDirectory": "dist/member-client/browser",
+  "installCommand": "npm install",
   "rewrites": [
     {
       "source": "/(.*)",

@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "start": "nx serve",
-    "build": "ng build",
+    "build": "nx build member-client",
     "test": "nx test",
     "serve:ssr": "node dist/member-client/server/server.mjs",
     "check:ssr": "node check-ssr.js"
