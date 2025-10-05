@@ -98,6 +98,50 @@
         "staticFilePath": "dist/member-client/browser",
         "spa": true
       }
+    },
+    "prerender": {
+      "executor": "@angular/build:prerender",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "buildTarget": "member-client:build:production",
+        "routes": ["/"],
+        "outputPath": "dist/member-client/prerender"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "member-client:build:development"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve-ssr": {
+      "executor": "@nx/workspace:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "nx run member-client:build:development"
+          },
+          {
+            "command": "node dist/member-client/server/server.mjs",
+            "forwardAllArgs": true
+          }
+        ],
+        "parallel": false
+      },
+      "configurations": {
+        "production": {
+          "commands": [
+            {
+              "command": "nx run member-client:build:production"
+            },
+            {
+              "command": "node dist/member-client/server/server.mjs",
+              "forwardAllArgs": true
+            }
+          ]
+        }
+      },
+      "defaultConfiguration": "development"
     }
   }
 }
