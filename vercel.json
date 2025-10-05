@@ -1,23 +1,13 @@
 {
-  "version": 2,
-  "framework": "other",
-  "installCommand": "npm ci",
-  "buildCommand": "npx nx build-ssr member-client",
-  "outputDirectory": "dist/apps/member-client/browser",
   "functions": {
     "api/ssr.ts": {
       "runtime": "nodejs20.x"
     }
   },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/dist/apps/member-client/browser/$1",
-      "check": true
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api/ssr"
+      "source": "/(.*)",
+      "destination": "/api/ssr"
     }
   ]
 }
