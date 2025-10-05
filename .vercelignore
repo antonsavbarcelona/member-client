@@ -1,0 +1,17 @@
+node_modules
+.nx
+.angular
+e2e
+src
+tools
+docs
+*.md
+.git
+.github
+.vscode
+.idea
+*.log
+jest.config.ts
+jest.preset.js
+eslint.config.mjs
+tsconfig.spec.json

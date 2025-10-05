@@ -5,11 +5,10 @@
   "scripts": {
     "start": "nx serve",
     "build": "nx build",
-    "build:ssr": "nx build-ssr member-client",
+    "vercel-build": "nx build member-client --configuration=production",
     "test": "nx test",
-    "serve:ssr": "node dist/apps/member-client/server/server.mjs",
-    "check:ssr": "node check-ssr.js",
-    "smoke:ssr": "node tools/scripts/ssr-smoke.mjs"
+    "serve:ssr": "node dist/member-client/server/server.mjs",
+    "check:ssr": "node check-ssr.js"
   },
   "private": true,
   "dependencies": {
