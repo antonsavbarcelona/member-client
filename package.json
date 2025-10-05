@@ -4,8 +4,7 @@
   "license": "MIT",
   "scripts": {
     "start": "nx serve",
-    "build": "nx build",
-    "vercel-build": "nx build member-client --configuration=production",
+    "build": "ng build",
     "test": "nx test",
     "serve:ssr": "node dist/member-client/server/server.mjs",
     "check:ssr": "node check-ssr.js"
