@@ -1,0 +1,10 @@
+{
+  "http": {
+    "timeoutMs": 5000,
+    "retryCount": 1,
+    "fallback": "empty"
+  },
+  "pageResponse": {
+    "timeoutMs": 10000
+  }
+}

@@ -5,9 +5,11 @@
   "scripts": {
     "start": "nx serve",
     "build": "nx build",
+    "build:ssr": "nx build-ssr member-client",
     "test": "nx test",
-    "serve:ssr": "node dist/member-client/server/server.mjs",
-    "check:ssr": "node check-ssr.js"
+    "serve:ssr": "node dist/apps/member-client/server/server.mjs",
+    "check:ssr": "node check-ssr.js",
+    "smoke:ssr": "node tools/scripts/ssr-smoke.mjs"
   },
   "private": true,
   "dependencies": {

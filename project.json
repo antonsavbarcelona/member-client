@@ -11,7 +11,7 @@
       "executor": "@angular/build:application",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/member-client",
+        "outputPath": "dist/apps/member-client",
         "browser": "./src/main.ts",
         "polyfills": ["zone.js"],
         "tsConfig": "tsconfig.app.json",
@@ -95,7 +95,7 @@
       "options": {
         "buildTarget": "member-client:build",
         "port": 4200,
-        "staticFilePath": "dist/member-client/browser",
+        "staticFilePath": "dist/apps/member-client/browser",
         "spa": true
       }
     },
@@ -105,7 +105,7 @@
       "options": {
         "buildTarget": "member-client:build:production",
         "routes": ["/"],
-        "outputPath": "dist/member-client/prerender"
+        "outputPath": "dist/apps/member-client/prerender"
       },
       "configurations": {
         "development": {
@@ -115,14 +115,14 @@
       "defaultConfiguration": "production"
     },
     "serve-ssr": {
-      "executor": "@nx/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": {
         "commands": [
           {
             "command": "nx run member-client:build:development"
           },
           {
-            "command": "node dist/member-client/server/server.mjs",
+            "command": "node dist/apps/member-client/server/server.mjs",
             "forwardAllArgs": true
           }
         ],
@@ -135,13 +135,19 @@
               "command": "nx run member-client:build:production"
             },
             {
-              "command": "node dist/member-client/server/server.mjs",
+              "command": "node dist/apps/member-client/server/server.mjs",
               "forwardAllArgs": true
             }
           ]
         }
       },
       "defaultConfiguration": "development"
+    },
+    "build-ssr": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "nx run member-client:build:production"
+      }
     }
   }
 }

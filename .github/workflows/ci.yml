@@ -1,4 +1,4 @@
-name: CI
+name: SSR CI
 
 on:
   push:
@@ -32,12 +32,30 @@ jobs:
           cache: 'npm'
 
       - run: npm ci --legacy-peer-deps
-      - run: npx playwright install --with-deps
 
-      # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
-      # - run: npx nx-cloud record -- echo Hello World
-      # When you enable task distribution, run the e2e-ci task instead of e2e
-      - run: npx nx run-many -t lint test build e2e
-      # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/ci/features/self-healing-ci
-      - run: npx nx fix-ci
-        if: always()
+      - name: Lint & unit tests
+        run: npx nx run-many -t lint test
+
+      - name: Build SSR bundle
+        run: npx nx build-ssr member-client
+
+      - name: Evaluate render policy
+        id: render-policy
+        run: |
+          POLICY=$(node tools/scripts/render-policy.mjs)
+          echo "$POLICY" > render-policy.json
+          ROUTES=$(node -e "const fs = require('fs'); const data = JSON.parse(fs.readFileSync('render-policy.json','utf8')); const routes = (data.ssgRoutes || []).filter((route) => !route.includes('(')); process.stdout.write(routes.join(','));")
+          COUNT=$(node -e "const fs = require('fs'); const data = JSON.parse(fs.readFileSync('render-policy.json','utf8')); const routes = (data.ssgRoutes || []).filter((route) => !route.includes('(')); console.log(routes.length);")
+          if [ "$COUNT" -gt 0 ]; then
+            echo "has-ssg=true" >> $GITHUB_OUTPUT
+          else
+            echo "has-ssg=false" >> $GITHUB_OUTPUT
+          fi
+          printf 'routes=%s\n' "$ROUTES" >> $GITHUB_OUTPUT
+
+      - name: Prerender (SSG)
+        if: steps.render-policy.outputs.has-ssg == 'true'
+        run: npx nx prerender member-client --routes "${{ steps.render-policy.outputs.routes }}"
+
+      - name: SSR smoke test
+        run: npm run smoke:ssr

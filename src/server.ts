@@ -7,12 +7,55 @@ import {
 import express from 'express';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import runtimeConfig from '../config/ssr-runtime.json';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
+const fallbackBehaviour = runtimeConfig.http?.fallback ?? 'empty';
+const pageTimeoutMs = runtimeConfig.pageResponse?.timeoutMs ?? 10000;
+
+const fallbackIndexHtml = resolve(browserDistFolder, 'index.html');
+
+function renderFallback(res: express.Response) {
+  if (res.headersSent) {
+    return;
+  }
+
+  if (fallbackBehaviour === 'empty') {
+    res
+      .status(200)
+      .setHeader('Content-Type', 'text/html')
+      .send('<app-root></app-root>');
+    return;
+  }
+
+  res.status(200).sendFile(fallbackIndexHtml);
+}
+
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  if (!timeoutMs || timeoutMs <= 0) {
+    return promise;
+  }
+
+  return new Promise<T>((resolvePromise, rejectPromise) => {
+    const timer = setTimeout(() => {
+      rejectPromise(new Error(`SSR render timeout after ${timeoutMs}ms`));
+    }, timeoutMs);
+
+    promise
+      .then((value) => {
+        clearTimeout(timer);
+        resolvePromise(value);
+      })
+      .catch((error) => {
+        clearTimeout(timer);
+        rejectPromise(error);
+      });
+  });
+}
 
 /**
  * Example Express Rest API endpoints can be defined here.
@@ -41,12 +84,22 @@ app.use(
  * Handle all other requests by rendering the Angular application.
  */
 app.use('/**', (req, res, next) => {
-  angularApp
-    .handle(req)
-    .then((response) =>
-      response ? writeResponseToNodeResponse(response, res) : next()
-    )
-    .catch(next);
+  withTimeout(angularApp.handle(req), pageTimeoutMs)
+    .then((response) => {
+      if (!response) {
+        next();
+        return;
+      }
+
+      return writeResponseToNodeResponse(response, res);
+    })
+    .catch((error) => {
+      console.error('[SSR] render failed', {
+        url: req.originalUrl,
+        error,
+      });
+      renderFallback(res);
+    });
 });
 
 /**
